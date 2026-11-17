@@ -1,0 +1,19 @@
+{
+  "bench": "longmemeval",
+  "title": "LongMemEval-S",
+  "source": "https://github.com/xiaowu0162/LongMemEval",
+  "rows": [
+    {
+      "key": "all",
+      "variant": "all",
+      "label": "All questions",
+      "shown": "91.6",
+      "metric": "LLM judge",
+      "questions": "500",
+      "reader": "not yet published",
+      "judge": "not yet published",
+      "status": "pending",
+      "note": "The run behind this number is not yet published here."
+    }
+  ]
+}

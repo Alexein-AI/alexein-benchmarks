@@ -1,0 +1,29 @@
+{
+  "bench": "rhelm",
+  "title": "RHELM",
+  "source": "https://github.com/microsoft/RHELM",
+  "rows": [
+    {
+      "key": "with",
+      "variant": "with",
+      "label": "Chats, emails and documents",
+      "shown": "48.5",
+      "metric": "Accuracy, RHELM's own reader and judge prompts",
+      "questions": "1,305",
+      "reader": "gpt-4.1-mini",
+      "judge": "gpt-4.1-mini",
+      "status": "reproducible"
+    },
+    {
+      "key": "without",
+      "variant": "without",
+      "label": "Chats only",
+      "shown": "35.6",
+      "metric": "Accuracy, RHELM's own reader and judge prompts",
+      "questions": "1,305",
+      "reader": "gpt-4.1-mini",
+      "judge": "gpt-4.1-mini",
+      "status": "reproducible"
+    }
+  ]
+}

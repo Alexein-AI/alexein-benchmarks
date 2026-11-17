@@ -1,0 +1,59 @@
+[project]
+name = "alexein-bench"
+version = "0.1.0"
+description = "Reproduce Alexein's published memory benchmark results with one command."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+dependencies = [
+    "alexein>=0.3,<0.4",
+    "httpx>=0.27,<1",
+    # MemoryAgentBench and BEAM ship as parquet.
+    "pyarrow>=15",
+]
+
+[project.scripts]
+alexein-bench = "alexein_bench.cli:main"
+
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/alexein_bench"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"results" = "alexein_bench/results"
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.6", "mypy>=1.11"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF", "C90", "PL", "ARG", "PTH"]
+ignore = ["PLR0913", "PLR2004"]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 12
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["ARG", "PLC0415"]
+# Benchmark prompts are copied verbatim from each benchmark's own repository: rewrapping one
+# changes the string a published number was produced with.
+"src/alexein_bench/benches/*_prompts.py" = ["E501", "RUF001"]
+
+[tool.mypy]
+strict = true
+python_version = "3.11"
+packages = ["alexein_bench"]
+mypy_path = "src"
+
+[[tool.mypy.overrides]]
+module = ["pyarrow.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

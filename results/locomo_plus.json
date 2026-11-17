@@ -1,0 +1,19 @@
+{
+  "bench": "locomo_plus",
+  "title": "LoCoMo-Plus",
+  "source": "https://arxiv.org/abs/2602.10715",
+  "rows": [
+    {
+      "key": "all",
+      "variant": "all",
+      "label": "All questions",
+      "shown": "55.4",
+      "metric": "The paper's binary judge",
+      "questions": "401",
+      "reader": "gpt-4.1-mini",
+      "judge": "the paper's judge",
+      "status": "pending",
+      "note": "The run behind this number is not yet published here. This harness gives each LoCoMo conversation one app user holding all the cues placed in it."
+    }
+  ]
+}

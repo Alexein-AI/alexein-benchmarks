@@ -1,0 +1,19 @@
+{
+  "bench": "locomo",
+  "title": "LoCoMo",
+  "source": "https://github.com/snap-research/locomo",
+  "rows": [
+    {
+      "key": "all",
+      "variant": "all",
+      "label": "All questions, categories 1-4",
+      "shown": "94.6",
+      "metric": "LLM judge",
+      "questions": "1,540",
+      "reader": "gpt-4.1-mini",
+      "judge": "gpt-4o-mini, majority of three",
+      "status": "pending",
+      "note": "The run behind this number is not yet published here."
+    }
+  ]
+}

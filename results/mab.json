@@ -1,0 +1,40 @@
+{
+  "bench": "mab",
+  "title": "MemoryAgentBench",
+  "source": "https://arxiv.org/abs/2507.05257",
+  "rows": [
+    {
+      "key": "fc",
+      "variant": "fc",
+      "label": "Fact consolidation (single-hop)",
+      "shown": "94.0",
+      "metric": "Accuracy (SubEM), no judge",
+      "questions": "100",
+      "reader": "gpt-4.1-mini",
+      "judge": "none",
+      "status": "reproducible"
+    },
+    {
+      "key": "ruler",
+      "variant": "ruler",
+      "label": "RULER-QA1, accurate retrieval",
+      "shown": "92.0",
+      "metric": "Accuracy (SubEM), no judge",
+      "questions": "100",
+      "reader": "gpt-4.1-mini",
+      "judge": "none",
+      "status": "reproducible"
+    },
+    {
+      "key": "detective",
+      "variant": "detective",
+      "label": "DetectiveQA, all 10 books",
+      "shown": "66.2",
+      "metric": "Accuracy",
+      "questions": "71",
+      "reader": "gpt-4.1-mini",
+      "judge": "none",
+      "status": "reproducible"
+    }
+  ]
+}

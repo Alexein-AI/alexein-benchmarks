@@ -1,0 +1,31 @@
+{
+  "bench": "beam",
+  "title": "BEAM, 1M-token split",
+  "source": "https://arxiv.org/abs/2510.27246",
+  "rows": [
+    {
+      "key": "mean",
+      "variant": "1m",
+      "label": "Mean score",
+      "shown": "63.49",
+      "metric": "Mem0's published BEAM harness, no hints",
+      "questions": "700",
+      "reader": "gpt-5",
+      "judge": "gpt-5",
+      "status": "pending",
+      "note": "Run with Mem0's published harness; the run is not yet published here."
+    },
+    {
+      "key": "pass",
+      "variant": "1m",
+      "label": "Pass rate",
+      "shown": "70.57%",
+      "metric": "Mem0's published BEAM harness, no hints",
+      "questions": "700",
+      "reader": "gpt-5",
+      "judge": "gpt-5",
+      "status": "pending",
+      "note": "Run with Mem0's published harness; the run is not yet published here."
+    }
+  ]
+}
