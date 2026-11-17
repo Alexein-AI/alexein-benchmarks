@@ -36,7 +36,8 @@ def cmd_list(_: argparse.Namespace) -> int:
         runnable = "" if board.bench in BENCHES else "  (no harness yet)"
         print(f"{board.bench:12} {board.title}{runnable}")
         for row in board.rows:
-            print(f"    {row.label:42} {row.shown:>8}   {row.status}")
+            command = f"alexein-bench run {board.bench} --variant {row.variant}"
+            print(f"    {row.label:42} {row.shown:>8}   {command}")
     return 0
 
 
@@ -66,8 +67,7 @@ def _report(bench: Bench, variant: str, summary: dict[str, object]) -> None:
     for row in board.rows:
         if row.variant != variant:
             continue
-        mark = "" if row.status == "reproducible" else f"  [{row.status}]"
-        print(f"  {row.label:42} {row.shown:>10} {got.get(row.key, '-'):>10}{mark}")
+        print(f"  {row.label:42} {row.shown:>10} {got.get(row.key, '-'):>10}")
 
 
 def _key_works(memory: Memory) -> bool:

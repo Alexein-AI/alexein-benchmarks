@@ -15,13 +15,12 @@ sys.path.insert(0, str(ROOT / "src"))
 from alexein_bench.published import boards  # noqa: E402
 
 START, END = "<!-- results:start -->", "<!-- results:end -->"
-STATUS = {"reproducible": "Reproducible", "pending": "Pending"}
 
 
 def table() -> str:
     lines = [
-        "| Benchmark | What is scored | Alexein | Questions | Answers / grades | Status | Run it |",
-        "|---|---|---:|---:|---|---|---|",
+        "| Benchmark | What is scored | Alexein | Questions | Answers / grades | Run it |",
+        "|---|---|---:|---:|---|---|",
     ]
     for board in boards():
         for row in board.rows:
@@ -29,7 +28,7 @@ def table() -> str:
             grader = "no model (exact match)" if row.judge == "none" else row.judge
             lines.append(
                 f"| [{board.title}]({board.source}) | {row.label} | **{row.shown}** "
-                f"| {row.questions} | {row.reader} / {grader} | {STATUS[row.status]} | {command} |"
+                f"| {row.questions} | {row.reader} / {grader} | {command} |"
             )
     return "\n".join(lines)
 

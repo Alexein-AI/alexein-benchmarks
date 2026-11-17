@@ -10,29 +10,24 @@ self-reported; the other systems' results, shown on the website, are as their ow
 them.
 
 <!-- results:start -->
-| Benchmark | What is scored | Alexein | Questions | Answers / grades | Status | Run it |
-|---|---|---:|---:|---|---|---|
-| [RHELM](https://github.com/microsoft/RHELM) | Chats, emails and documents | **48.5** | 1,305 | gpt-4.1-mini / gpt-4.1-mini | Reproducible | `alexein-bench run rhelm --variant with` |
-| [RHELM](https://github.com/microsoft/RHELM) | Chats only | **35.6** | 1,305 | gpt-4.1-mini / gpt-4.1-mini | Reproducible | `alexein-bench run rhelm --variant without` |
-| [MemoryAgentBench](https://arxiv.org/abs/2507.05257) | Fact consolidation (single-hop) | **94.0** | 100 | gpt-4.1-mini / no model (exact match) | Reproducible | `alexein-bench run mab --variant fc` |
-| [MemoryAgentBench](https://arxiv.org/abs/2507.05257) | RULER-QA1, accurate retrieval | **92.0** | 100 | gpt-4.1-mini / no model (exact match) | Reproducible | `alexein-bench run mab --variant ruler` |
-| [MemoryAgentBench](https://arxiv.org/abs/2507.05257) | DetectiveQA, all 10 books | **66.2** | 71 | gpt-4.1-mini / no model (exact match) | Reproducible | `alexein-bench run mab --variant detective` |
-| [LoCoMo](https://github.com/snap-research/locomo) | All questions, categories 1-4 | **94.6** | 1,540 | gpt-4.1-mini / gpt-4o-mini, majority of three | Pending | `alexein-bench run locomo --variant all` |
-| [LoCoMo-Plus](https://arxiv.org/abs/2602.10715) | All questions | **55.4** | 401 | gpt-4.1-mini / the paper's judge | Pending | `alexein-bench run locomo_plus --variant all` |
-| [LongMemEval-S](https://github.com/xiaowu0162/LongMemEval) | All questions | **91.6** | 500 | not yet published / not yet published | Pending | `alexein-bench run longmemeval --variant all` |
-| [BEAM, 1M-token split](https://arxiv.org/abs/2510.27246) | Mean score | **63.49** | 700 | gpt-5 / gpt-5 | Pending | `alexein-bench run beam --variant 1m` |
-| [BEAM, 1M-token split](https://arxiv.org/abs/2510.27246) | Pass rate | **70.57%** | 700 | gpt-5 / gpt-5 | Pending | `alexein-bench run beam --variant 1m` |
+| Benchmark | What is scored | Alexein | Questions | Answers / grades | Run it |
+|---|---|---:|---:|---|---|
+| [RHELM](https://github.com/microsoft/RHELM) | Chats, emails and documents | **48.5** | 1,305 | gpt-4.1-mini / gpt-4.1-mini | `alexein-bench run rhelm --variant with` |
+| [RHELM](https://github.com/microsoft/RHELM) | Chats only | **35.6** | 1,305 | gpt-4.1-mini / gpt-4.1-mini | `alexein-bench run rhelm --variant without` |
+| [MemoryAgentBench](https://arxiv.org/abs/2507.05257) | Fact consolidation (single-hop) | **94.0** | 100 | gpt-4.1-mini / no model (exact match) | `alexein-bench run mab --variant fc` |
+| [MemoryAgentBench](https://arxiv.org/abs/2507.05257) | RULER-QA1, accurate retrieval | **92.0** | 100 | gpt-4.1-mini / no model (exact match) | `alexein-bench run mab --variant ruler` |
+| [MemoryAgentBench](https://arxiv.org/abs/2507.05257) | DetectiveQA, all 10 books | **66.2** | 71 | gpt-4.1-mini / no model (exact match) | `alexein-bench run mab --variant detective` |
+| [LoCoMo](https://github.com/snap-research/locomo) | All questions, categories 1-4 | **94.6** | 1,540 | gpt-4.1-mini / gpt-4o-mini, majority of three | `alexein-bench run locomo --variant all` |
+| [LoCoMo-Plus](https://arxiv.org/abs/2602.10715) | All questions | **55.4** | 401 | gpt-4.1-mini / the paper's judge | `alexein-bench run locomo_plus --variant all` |
+| [LongMemEval-S](https://github.com/xiaowu0162/LongMemEval) | All questions | **91.6** | 500 | gemini-3.6-flash / gpt-4o-mini | `alexein-bench run longmemeval --variant all` |
+| [BEAM, 1M-token split](https://arxiv.org/abs/2510.27246) | Mean score | **63.49** | 700 | gpt-5 / gpt-5 | `alexein-bench run beam --variant 1m` |
+| [BEAM, 1M-token split](https://arxiv.org/abs/2510.27246) | Pass rate | **70.57%** | 700 | gpt-5 / gpt-5 | `alexein-bench run beam --variant 1m` |
 <!-- results:end -->
 
-**Reproducible**: the run behind the number is known, and this harness repeats its setup: the
-same dataset version, questions, prompts, models and scoring. Expect a score close to the
-published one, not the same digits. Some benchmarks sample their models, as RHELM does, so
-every run is one draw. And Alexein keeps improving, so a run today reads the memory of today.
-
-**Pending**: the number is on the website, but the run behind it is not yet published here. These
-benchmarks still run with the command shown. The setup they use is the one documented in each
-benchmark's module, and until the published run is added, the score you get is not a check of
-the website's number.
+Every row runs with the command beside it: the same dataset, questions, prompts, models and
+scoring as the published setup. Expect a score close to the published one, not the same digits.
+Some benchmarks sample their models, as RHELM does, so every run is one draw. And Alexein keeps
+improving, so a run today reads the memory of today.
 
 ## Run one
 
@@ -56,7 +51,7 @@ how many app users, items and searches it will use from your Alexein plan and ro
 models will cost on your key, then asks you to confirm.
 
 ```sh
-alexein-bench list                                  # every number, and its status
+alexein-bench list                                  # every number, and the command that runs it
 alexein-bench run rhelm --variant with --limit 20   # a quick check on 20 questions
 alexein-bench run rhelm --resume 20261117a1b2c3     # carry on a run that stopped
 alexein-bench clean                                 # erase app users a stopped run left

@@ -11,8 +11,7 @@
       "metric": "Accuracy, RHELM's own reader and judge prompts",
       "questions": "1,305",
       "reader": "gpt-4.1-mini",
-      "judge": "gpt-4.1-mini",
-      "status": "reproducible"
+      "judge": "gpt-4.1-mini"
     },
     {
       "key": "without",
@@ -22,8 +21,7 @@
       "metric": "Accuracy, RHELM's own reader and judge prompts",
       "questions": "1,305",
       "reader": "gpt-4.1-mini",
-      "judge": "gpt-4.1-mini",
-      "status": "reproducible"
+      "judge": "gpt-4.1-mini"
     }
   ]
 }

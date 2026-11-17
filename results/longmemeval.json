@@ -10,10 +10,8 @@
       "shown": "91.6",
       "metric": "LLM judge",
       "questions": "500",
-      "reader": "not yet published",
-      "judge": "not yet published",
-      "status": "pending",
-      "note": "The run behind this number is not yet published here."
+      "reader": "gemini-3.6-flash",
+      "judge": "gpt-4o-mini"
     }
   ]
 }

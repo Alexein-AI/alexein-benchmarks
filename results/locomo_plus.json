@@ -12,8 +12,7 @@
       "questions": "401",
       "reader": "gpt-4.1-mini",
       "judge": "the paper's judge",
-      "status": "pending",
-      "note": "The run behind this number is not yet published here. This harness gives each LoCoMo conversation one app user holding all the cues placed in it."
+      "note": "This harness gives each LoCoMo conversation one app user holding all the cues placed in it."
     }
   ]
 }

@@ -1,5 +1,5 @@
 """The numbers alexein.ai/benchmarks shows, read from `results/<bench>.json`: each written as the
-website writes it, with the setup that produced it and whether this harness repeats that setup."""
+website writes it, with the setup that produced it."""
 
 from __future__ import annotations
 
@@ -20,9 +20,6 @@ class Row:
     questions: str
     reader: str
     judge: str
-    # "reproducible": the run behind it is known and this harness repeats its setup.
-    # "pending": shown on the website; the run behind it is not yet published here.
-    status: str
     note: str = ""
 
 
@@ -51,7 +48,7 @@ def board(bench: str) -> Board:
     )
 
 
-# As the README lists them: those this harness reproduces first.
+# The order the README lists them in.
 ORDER = ("rhelm", "mab", "locomo", "locomo_plus", "longmemeval", "beam")
 
 

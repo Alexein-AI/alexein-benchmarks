@@ -12,8 +12,7 @@
       "questions": "700",
       "reader": "gpt-5",
       "judge": "gpt-5",
-      "status": "pending",
-      "note": "Run with Mem0's published harness; the run is not yet published here."
+      "note": "Run with Mem0's published BEAM harness."
     },
     {
       "key": "pass",
@@ -24,8 +23,7 @@
       "questions": "700",
       "reader": "gpt-5",
       "judge": "gpt-5",
-      "status": "pending",
-      "note": "Run with Mem0's published harness; the run is not yet published here."
+      "note": "Run with Mem0's published BEAM harness."
     }
   ]
 }

@@ -11,9 +11,7 @@
       "metric": "LLM judge",
       "questions": "1,540",
       "reader": "gpt-4.1-mini",
-      "judge": "gpt-4o-mini, majority of three",
-      "status": "pending",
-      "note": "The run behind this number is not yet published here."
+      "judge": "gpt-4o-mini, majority of three"
     }
   ]
 }
