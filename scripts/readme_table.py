@@ -17,17 +17,30 @@ from alexein_bench.published import boards  # noqa: E402
 START, END = "<!-- results:start -->", "<!-- results:end -->"
 
 
+def heading(title: str) -> str:
+    """The README heading a benchmark's chart and full commands sit under: "BEAM, 1M-token
+    split" is under "### BEAM"."""
+    return title.split(",", maxsplit=1)[0]
+
+
+def anchor(title: str) -> str:
+    """GitHub's link to that heading: "LongMemEval-S" is #longmemeval-s."""
+    return heading(title).lower().replace(" ", "-")
+
+
 def table() -> str:
+    # A benchmark and what it scores share a cell, and the commands, too wide for GitHub's
+    # column, are a link to the benchmark's own heading, where they are written out in full.
     lines = [
-        "| Benchmark | What is scored | Alexein | Questions | Answers / grades | Run it |",
-        "|---|---|---:|---:|---|---|",
+        "| Benchmark | Alexein | Questions | Answers / grades | Run it |",
+        "|---|---:|---:|---|---|",
     ]
     for board in boards():
         for row in board.rows:
-            command = f"`alexein-bench run {board.bench} --variant {row.variant}`"
+            command = f"[Command](#{anchor(board.title)})"
             grader = "no model (exact match)" if row.judge == "none" else row.judge
             lines.append(
-                f"| [{board.title}]({board.source}) | {row.label} | **{row.shown}** "
+                f"| [{board.title}]({board.source})<br>{row.label} | **{row.shown}** "
                 f"| {row.questions} | {row.reader} / {grader} | {command} |"
             )
     return "\n".join(lines)
@@ -39,6 +52,12 @@ def main() -> int:
     head, _, rest = text.partition(START)
     _, _, tail = rest.partition(END)
     want = f"{head}{START}\n{table()}\n{END}{tail}"
+    # Each row's command links to its benchmark's heading, so the heading must be there.
+    missing = [b.title for b in boards() if f"\n### {heading(b.title)}\n" not in text]
+    for title in missing:
+        print(f"README.md has no '### {heading(title)}' for {title}'s commands to link to")
+    if missing:
+        return 1
     if "--check" in sys.argv:
         if want != text:
             print("README.md's results table is out of date: python scripts/readme_table.py")

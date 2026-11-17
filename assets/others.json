@@ -1,0 +1,94 @@
+{
+  "about": "The other systems' published results the README's charts draw beside Alexein's, each as alexein.ai/benchmarks shows it and as its source writes it. Alexein's own numbers are not here: the charts read them from results/*.json. kind is memory (a memory system) or none (no memory system: a model reading the whole history, or plain retrieval); aside is the few words drawn beside a name, its answer model or how its figure was run.",
+  "sources": {
+    "rhelmRepo": {"label": "RHELM leaderboard", "href": "https://github.com/microsoft/RHELM"},
+    "rhelm": {"label": "RHELM, arXiv 2605.31086", "href": "https://arxiv.org/abs/2605.31086"},
+    "mab": {"label": "MemoryAgentBench, arXiv 2507.05257", "href": "https://arxiv.org/abs/2507.05257"},
+    "mindmemos": {"label": "MindMemOS, arXiv 2608.12428", "href": "https://arxiv.org/abs/2608.12428"},
+    "mnemis": {"label": "Mnemis, arXiv 2602.15313", "href": "https://arxiv.org/abs/2602.15313"},
+    "locomoAudit": {"label": "LoCoMo answer-key audit", "href": "https://github.com/dial481/locomo-audit"},
+    "locomoPlus": {"label": "LoCoMo-Plus, arXiv 2602.10715", "href": "https://arxiv.org/abs/2602.10715"},
+    "mem0Blog": {"label": "Mem0's blog", "href": "https://mem0.ai/blog/the-token-efficient-memory-algorithm-now-has-temporal-reasoning"},
+    "mem0Bench": {"label": "Mem0's published BEAM harness", "href": "https://github.com/mem0ai/memory-benchmarks"},
+    "beam": {"label": "BEAM, arXiv 2510.27246", "href": "https://arxiv.org/abs/2510.27246"}
+  },
+  "same_model": [
+    {"bench": "mab", "key": "fc", "name": "MemoryAgentBench", "task": "Facts that keep changing", "whole": "36.0", "source": "mab"},
+    {"bench": "rhelm", "key": "with", "name": "RHELM", "task": "A year of chats, emails, documents", "whole": "33.9", "source": "rhelmRepo"},
+    {"bench": "locomo", "key": "all", "name": "LoCoMo", "task": "Weeks of long conversations", "whole": "80.6", "source": "mnemis", "judged_apart": true},
+    {"bench": "mab", "key": "detective", "name": "MemoryAgentBench", "task": "A whole detective novel", "whole": "56.3", "source": "mab"},
+    {"bench": "mab", "key": "ruler", "name": "MemoryAgentBench", "task": "One fact in a long history", "whole": "83.0", "source": "mab"}
+  ],
+  "boards": {
+    "rhelm/without": [
+      {"name": "GPT-5.5, 1M-token context", "shown": "57.0", "kind": "none"},
+      {"name": "Claude Opus 4.6, 1M-token context", "shown": "49.7", "kind": "none"},
+      {"name": "Claude Opus 4.5, retrieval (k=20)", "shown": "36.2", "kind": "none"},
+      {"name": "Qwen3.5-397B-A17B, 1M-token context", "shown": "34.6", "kind": "none"},
+      {"name": "memU", "shown": "23.1", "kind": "memory"},
+      {"name": "Mem0", "shown": "21.1", "kind": "memory"},
+      {"name": "MemGPT", "shown": "13.9", "kind": "memory"}
+    ],
+    "rhelm/with": [
+      {"name": "GPT-5.5, 1M-token context", "shown": "73.3", "kind": "none"},
+      {"name": "Claude Opus 4.6, 1M-token context", "shown": "69.1", "kind": "none"},
+      {"name": "Qwen3.5-397B-A17B, 1M-token context", "shown": "44.3", "kind": "none"},
+      {"name": "Claude Opus 4.5, retrieval (k=20)", "shown": "38.1", "kind": "none"},
+      {"name": "GPT-4.1-mini, 1M-token context", "shown": "33.9", "kind": "none"},
+      {"name": "memU", "shown": "33.6", "kind": "memory"},
+      {"name": "Mem0", "shown": "28.9", "kind": "memory"}
+    ],
+    "mab/fc": [
+      {"name": "MindMemOS (+ Dreaming)", "shown": "92.0", "kind": "memory", "aside": "gpt-5-mini"},
+      {"name": "GPT-4o, whole context", "shown": "60.0", "kind": "none"},
+      {"name": "HippoRAG 2", "shown": "54.0", "kind": "memory", "aside": "GPT-4o-mini"},
+      {"name": "BM25", "shown": "48.0", "kind": "none", "aside": "GPT-4o-mini"},
+      {"name": "Claude 3.7 Sonnet, whole context", "shown": "43.0", "kind": "none"},
+      {"name": "GPT-4.1-mini, whole context", "shown": "36.0", "kind": "none"},
+      {"name": "Gemini 2.0 Flash, whole context", "shown": "30.0", "kind": "none"},
+      {"name": "MemGPT", "shown": "28.0", "kind": "memory", "aside": "GPT-4o-mini"},
+      {"name": "Cognee", "shown": "28.0", "kind": "memory", "aside": "GPT-4o-mini"},
+      {"name": "MemoRAG", "shown": "21.0", "kind": "memory", "aside": "GPT-4o-mini"},
+      {"name": "Mem0", "shown": "18.0", "kind": "memory", "aside": "GPT-4o-mini"},
+      {"name": "MIRIX", "shown": "14.0", "kind": "memory", "aside": "GPT-4o-mini"},
+      {"name": "GraphRAG", "shown": "14.0", "kind": "memory", "aside": "GPT-4o-mini"},
+      {"name": "Zep", "shown": "7.0", "kind": "memory", "aside": "GPT-4o-mini"}
+    ],
+    "locomo/all": [
+      {"name": "MindMemOS", "shown": "94.03", "kind": "memory"},
+      {"name": "Mnemis", "shown": "93.9", "kind": "memory"},
+      {"name": "EverOS (EverMemOS)", "shown": "93.05", "kind": "memory"},
+      {"name": "EMem-G", "shown": "85.3", "kind": "memory"},
+      {"name": "Zep", "shown": "85.2", "kind": "memory"},
+      {"name": "MemOS", "shown": "80.8", "kind": "memory"},
+      {"name": "The whole conversation, no memory", "shown": "80.6", "kind": "none"},
+      {"name": "Nemori", "shown": "79.5", "kind": "memory"},
+      {"name": "RAG", "shown": "73.8", "kind": "none"},
+      {"name": "LangMem", "shown": "73.4", "kind": "memory"},
+      {"name": "memU", "shown": "66.7", "kind": "memory"},
+      {"name": "Mem0", "shown": "66.3", "kind": "memory"},
+      {"name": "PREMem", "shown": "65.8", "kind": "memory"}
+    ],
+    "locomo_plus/all": [
+      {"name": "Gemini 2.5 Pro, whole conversation", "shown": "26.06", "kind": "none"},
+      {"name": "Gemini 2.5 Flash, whole conversation", "shown": "24.67", "kind": "none"},
+      {"name": "GPT-4o, whole conversation", "shown": "21.05", "kind": "none"},
+      {"name": "GPT-4.1, whole conversation", "shown": "18.63", "kind": "none"},
+      {"name": "A-Mem", "shown": "17.20", "kind": "memory", "aside": "GPT-4o"},
+      {"name": "Mem0", "shown": "15.80", "kind": "memory", "aside": "GPT-4o"},
+      {"name": "RAG", "shown": "15.55", "kind": "none", "aside": "GPT-4o"},
+      {"name": "SeCom", "shown": "14.90", "kind": "memory", "aside": "GPT-4o"},
+      {"name": "gpt-5-nano, whole conversation", "shown": "14.84", "kind": "none"}
+    ],
+    "longmemeval/all": [
+      {"name": "Mem0 Platform", "shown": "93.4", "kind": "memory", "aside": "hosted, Mem0's blog"},
+      {"name": "Mem0 OSS", "shown": "91.0", "kind": "memory", "aside": "same setup"}
+    ],
+    "beam/mean": [
+      {"name": "Mem0", "shown": "64.09", "kind": "memory"}
+    ],
+    "beam/pass": [
+      {"name": "Mem0", "shown": "70.14%", "kind": "memory"}
+    ]
+  }
+}

@@ -76,7 +76,7 @@ TERMS: list[tuple[str, bool]] = [
     (r"\b30 minutes\b", False),
 ]
 COMPILED = [(re.compile(t, 0 if t.startswith(r"\bTWIN") else re.IGNORECASE), ok) for t, ok in TERMS]
-TEXT = {".py", ".md", ".json", ".toml", ".yml", ".yaml", ".txt", ".cfg", ".ini", ""}
+TEXT = {".py", ".md", ".json", ".toml", ".yml", ".yaml", ".txt", ".cfg", ".ini", ".svg", ""}
 
 
 def tracked() -> list[str]:
