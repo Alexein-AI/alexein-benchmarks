@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from typing import cast
 
+from alexein_bench.benches import rhelm_prompts as prompts
 from alexein_bench.benches.rhelm import Rhelm, judge_reply, load
 from alexein_bench.core import Question
 from alexein_bench.models import Models
@@ -99,3 +100,13 @@ def test_summary_is_the_leaderboard_average() -> None:
     got = Rhelm().summary(rows, "with")
     assert got["with"] == "33.3"
     assert got["with:fact"] == "50.0"
+
+
+def test_a_question_is_searched_as_of_its_own_day(tmp_path: Path) -> None:
+    unit = load(NAME, fixture(tmp_path), sources=False)
+    assert [x.as_of for x in unit.questions] == ["2024-02-03", "2024-02-04"]
+
+
+def test_judge_prompt_keeps_rhelm_s_trailing_space() -> None:
+    # Verbatim, at 5e170da: `evaluation/rag_benchmark.py` ends this line with a space.
+    assert "contradicts the expected answer. \n" in prompts.JUDGE_PROMPT

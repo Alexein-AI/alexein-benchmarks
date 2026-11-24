@@ -23,6 +23,8 @@ class FakeAlexein:
         self.items: dict[str, list[dict[str, Any]]] = defaultdict(list)
         self.deleted: list[str] = []
         self.searches: list[tuple[str, str, list[str]]] = []
+        # Each search's `before`, by its query: the day memory was asked as of.
+        self.befores: dict[str, str | None] = {}
         self.slow = slow
         # Whether it has `/v2/memory/settle`; once told, a user's items are processed at once.
         self.settles = settles
@@ -59,6 +61,7 @@ class FakeAlexein:
         if path == "/v2/memory/search":
             held = sorted(self.items[user], key=lambda i: i["at"])
             self.searches.append((user, body["query"], [i["id"] for i in held]))
+            self.befores[body["query"]] = body.get("before")
             memories = [
                 {"type": "excerpt", "ref": f"r{n}", "text": i["text"], "date": i["at"]}
                 for n, i in enumerate(held)

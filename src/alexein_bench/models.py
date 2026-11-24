@@ -32,7 +32,9 @@ PRICES: dict[str, tuple[float, float]] = {
     "openai/gpt-4o": (2.50, 10.00),
     "openai/gpt-5": (1.25, 10.00),
 }
-_RETRIES = 6
+# Backing off 1s, 2s, 4s ... capped at a minute: about five minutes in all, as long as an outage
+# of Alexein is waited out (`memory.patient`), so a blip does not cost a long run its questions.
+_RETRIES = 10
 _RETRY_STATUS = {408, 409, 429, 500, 502, 503, 504}
 
 
@@ -44,6 +46,15 @@ def _ROUTED_AWAY(text: str) -> bool:  # noqa: N802 - reads as the condition it i
 
 class ModelError(RuntimeError):
     pass
+
+
+class ModelKeyError(ModelError):
+    """The model key itself was refused - expired, revoked, out of credit, not allowed: no
+    question can be answered until it is replaced, so a run stops rather than scoring each 0."""
+
+
+# Refusals of the key, not of one request.
+_KEY_STATUS = {401, 402, 403}
 
 
 @dataclass
@@ -201,6 +212,8 @@ class Models:
                     last = ModelError(f"no choices in reply: {response.text[:300]}")
                 elif response.status_code in _RETRY_STATUS or _ROUTED_AWAY(response.text):
                     last = ModelError(f"{response.status_code}: {response.text[:300]}")
+                elif response.status_code in _KEY_STATUS:
+                    raise ModelKeyError(f"{response.status_code}: {response.text[:500]}")
                 else:
                     raise ModelError(f"{response.status_code}: {response.text[:500]}")
             time.sleep(min(60.0, 2**attempt + random.random()))

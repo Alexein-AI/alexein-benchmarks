@@ -70,10 +70,16 @@ def test_trimmed_takes_whole_units_first() -> None:
 
 
 def test_user_id_fits_the_api() -> None:
-    name = user_id("rhelm", "Justice_Arvind_Prakash_Mehra", "20261117a1b2c3")
+    name = user_id("rhelm", "Justice_Arvind_Prakash_Mehra", "20261117a1b2c3", variant="with")
     assert len(name) <= 35
     assert name.startswith("bench-20261117a1b2c3-")
-    assert name != user_id("rhelm", "Elena_Morales", "20261117a1b2c3")
+    assert name != user_id("rhelm", "Elena_Morales", "20261117a1b2c3", variant="with")
+
+
+def test_variants_of_one_run_never_share_a_memory() -> None:
+    # RHELM's `with` holds emails and attachments that `without` must not see.
+    one = user_id("rhelm", "Elena_Morales", "20261117a1b2c3", variant="with")
+    assert one != user_id("rhelm", "Elena_Morales", "20261117a1b2c3", variant="without")
 
 
 @pytest.fixture(autouse=True)
@@ -226,7 +232,7 @@ def test_resume_carries_on_in_the_same_memory(tmp_path: Path) -> None:
     stopped = Runner(settings, fake.client(), cast(Models, FakeModels(flaky)))
     with pytest.raises(KeyboardInterrupt):
         stopped.run([unit], lambda _line: None)
-    name = user_id("echo", "u", "r1")
+    name = user_id("echo", "u", "r1", variant="all")
     assert [i["id"] for i in fake.items[name]] == ["i1", "i2"]  # kept for --resume
 
     resumed = Settings(
@@ -243,7 +249,7 @@ def test_resume_carries_on_in_the_same_memory(tmp_path: Path) -> None:
 
 def test_resume_rebuilds_a_memory_that_holds_too_much(tmp_path: Path) -> None:
     fake = FakeAlexein()
-    name = user_id("echo", "u", "r1")
+    name = user_id("echo", "u", "r1", variant="all")
     fake.client().user(name).add([item(1, "2024-01-01"), item(2, "2024-01-03")])
     unit = Unit(
         "u",
@@ -258,6 +264,40 @@ def test_resume_rebuilds_a_memory_that_holds_too_much(tmp_path: Path) -> None:
     seen = {query: ids for _, query, ids in fake.searches}
     assert seen["first?"] == ["i1"]
     assert runner.added == 2
+
+
+def test_resume_adds_nothing_after_the_last_question_to_ask(tmp_path: Path) -> None:
+    fake = FakeAlexein()
+    unit = Unit(
+        "u",
+        [item(1, "2024-01-01"), item(2, "2024-01-03"), item(3, "2024-01-05")],
+        [
+            Question("q1", "first?", "said 1", "c", cutoff="2024-01-02"),
+            Question("q2", "second?", "said 2", "c", cutoff="2024-01-04"),
+            Question("q3", "last?", "said 3", "c", cutoff=None),
+        ],
+    )
+    calls = {"n": 0}
+
+    def fails_first(_m: str, _p: str) -> str:
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise ValueError("the first answer failed")
+        return "ok"
+
+    settings = Settings(bench=EchoBench(), variant="all", run="r1", out=tmp_path, workers=1)
+    Runner(settings, fake.client(), cast(Models, FakeModels(fails_first))).run(
+        [unit], lambda _line: None
+    )
+
+    resumed = Settings(
+        bench=EchoBench(), variant="all", run="r1", out=tmp_path, workers=1, resume=True
+    )
+    runner = Runner(resumed, fake.client(), cast(Models, FakeModels(lambda _m, _p: "ok")))
+    runner.run([unit], lambda _line: None)
+    assert sorted(r["id"] for r in runner.rows() if "error" not in r) == ["q1", "q2", "q3"]
+    # Rebuilt for q1 alone: i2 and i3 come after it and nothing after it is asked again.
+    assert runner.added == 1
 
 
 def test_stopping_finishes_whats_in_flight_and_starts_nothing(tmp_path: Path) -> None:
@@ -388,3 +428,105 @@ def test_without_settle_it_waits_at_memorys_pace(tmp_path: Path) -> None:
     runner, _ = run(tmp_path, fake, [Unit("u", [item(1, "2024-01-01")], [q(1, None)])])
     assert not fake.settled
     assert "error" not in runner.rows()[0]
+
+
+def test_search_is_asked_as_of_the_questions_day(tmp_path: Path) -> None:
+    fake = FakeAlexein()
+    unit = Unit(
+        "u",
+        [item(1, "2024-01-01")],
+        [
+            Question("q1", "last week?", "x", "c", cutoff="2024-01-02", as_of="2024-01-02"),
+            Question("q2", "undated?", "x", "c", cutoff=None),
+        ],
+    )
+    run(tmp_path, fake, [unit])
+    assert fake.befores == {"last week?": "2024-01-02", "undated?": None}
+    traces = [json.loads(x) for x in (tmp_path / "traces.jsonl").read_text().splitlines()]
+    assert {t["id"]: t.get("as_of") for t in traces} == {"q1": "2024-01-02", "q2": None}
+
+
+def test_a_unit_with_a_failed_question_is_kept_for_resume(tmp_path: Path) -> None:
+    fake = FakeAlexein()
+    unit = Unit("u", [item(1, "2024-01-01")], [q(1, None), q(2, None)])
+
+    calls = {"n": 0}
+
+    def fails_once(_m: str, _p: str) -> str:
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise RuntimeError("provider down")
+        return "ok"
+
+    settings = Settings(bench=EchoBench(), variant="all", run="r1", out=tmp_path, workers=1)
+    first = Runner(settings, fake.client(), cast(Models, FakeModels(fails_once)))
+    first.run([unit], lambda _line: None)
+    name = user_id("echo", "u", "r1", variant="all")
+    assert not fake.deleted  # a question failed: its memory is kept
+    assert sum("error" in r for r in first.rows()) == 1
+
+    resumed = Settings(
+        bench=EchoBench(), variant="all", run="r1", out=tmp_path, workers=1, resume=True
+    )
+    models = FakeModels(lambda _m, _p: "ok")
+    again = Runner(resumed, fake.client(), cast(Models, models))
+    again.run([unit], lambda _line: None)
+    assert len(models.calls) == 1  # only the failed one asked again
+    assert again.added == 0  # nothing rebuilt
+    assert not any("error" in r for r in again.rows())
+    assert name in fake.deleted  # erased once every question is answered
+
+
+def test_a_refused_model_key_stops_the_run_and_fails_no_question(tmp_path: Path) -> None:
+    from alexein_bench.models import ModelKeyError
+
+    fake = FakeAlexein()
+    units = [Unit(f"u{n}", [item(n, "2024-01-01")], [q(n * 10 + k, None) for k in range(3)])
+             for n in range(3)]  # fmt: skip
+    calls = {"n": 0}
+
+    def expires(_m: str, _p: str) -> str:
+        calls["n"] += 1
+        if calls["n"] >= 2:
+            raise ModelKeyError("401: API key expired")
+        return "ok"
+
+    settings = Settings(bench=EchoBench(), variant="all", run="r1", out=tmp_path, workers=1)
+    runner = Runner(settings, fake.client(), cast(Models, FakeModels(expires)))
+    runner.run(units, lambda _line: None)
+    rows = runner.rows()
+    assert [r["id"] for r in rows] == ["q0"]  # nothing written as failed
+    assert not any("error" in r for r in rows)
+    assert not fake.deleted  # every app user kept for --resume
+
+
+def test_a_rebuild_adds_the_answered_days_at_once(tmp_path: Path) -> None:
+    fake = FakeAlexein()
+    name = user_id("echo", "u", "r1", variant="all")
+    unit = Unit(
+        "u",
+        [item(1, "2024-01-01"), item(2, "2024-01-02"), item(3, "2024-01-03")],
+        [
+            Question("q1", "first?", "said 1", "c", cutoff="2024-01-02"),
+            Question("q2", "second?", "said 2", "c", cutoff="2024-01-03"),
+            Question("q3", "third?", "said 3", "c", cutoff=None),
+        ],
+    )
+    # q1 answered; q2 failed after memory had already taken in day 3, which q2 must not see.
+    (tmp_path / "results.jsonl").write_text(
+        json.dumps({"id": "q1", "unit": "u", "score": 1.0})
+        + "\n"
+        + json.dumps({"id": "q2", "unit": "u", "error": "key"})
+        + "\n"
+    )
+    fake.client().user(name).add(
+        [item(1, "2024-01-01"), item(2, "2024-01-02"), item(3, "2024-01-03")]
+    )
+    settings = Settings(
+        bench=EchoBench(), variant="all", run="r1", out=tmp_path, workers=1, resume=True
+    )
+    runner = Runner(settings, fake.client(), cast(Models, FakeModels(lambda _m, _p: "ok")))
+    runner.run([unit], lambda _line: None)
+    seen = {query: ids for _, query, ids in fake.searches}
+    assert seen == {"second?": ["i1", "i2"], "third?": ["i1", "i2", "i3"]}
+    assert name in fake.deleted

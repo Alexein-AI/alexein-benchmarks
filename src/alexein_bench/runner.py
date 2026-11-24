@@ -35,7 +35,7 @@ from alexein import Memory
 
 from alexein_bench.core import Bench, Json, Question, Unit
 from alexein_bench.memory import STORED, Account, short, user_id
-from alexein_bench.models import Models
+from alexein_bench.models import ModelKeyError, Models
 
 Step = tuple[list[Json], list[Question]]
 
@@ -267,6 +267,16 @@ class Runner:
                     future.result()
                 except StoppedError:
                     pass
+                except ModelKeyError as error:
+                    # The key is dead for every unit: stop the run, keep every app user, and
+                    # write nothing for the question that met it, so --resume asks it as it was.
+                    self._stop.set()
+                    with self._lock:
+                        self._failed += 1
+                    progress(
+                        f"{unit.id}: the model key was refused ({str(error)[:200]}). Stopping the "
+                        "run; replace the key and carry on with --resume."
+                    )
                 except Exception as error:  # one unit failing leaves the others running
                     with self._lock:
                         self._failed += 1
@@ -295,12 +305,15 @@ class Runner:
         held = account.held(ids)
         first = plan_resume(plan, held, self.done)
         if first is None:
+            # Built again from nothing, but not a day at a time: every step whose questions are
+            # all answered is added at once, as a first run adds what comes before its first
+            # question. Nothing after the first question still to ask is added before it is.
             account.delete()
-            return 0, set()
+            return plan_resume(plan, set(), self.done) or 0, set()
         return first, held
 
     def _unit(self, unit: Unit, progress: Callable[[str], None]) -> None:
-        name = user_id(self.s.bench.name, unit.id, self.s.run)
+        name = user_id(self.s.bench.name, unit.id, self.s.run, variant=self.s.variant)
         account = Account(self.memory, name, timeout=self.s.wait)
         plan = steps(unit)
         started, asked = time.monotonic(), 0
@@ -314,7 +327,13 @@ class Runner:
             # questions is left to ask in between.
             before = [i for items, _ in plan[:first] for i in items]
             pending = [(before + plan[first][0], plan[first][1])] if first < len(plan) else []
-            for items, questions in pending + plan[first + 1 :]:
+            # Nothing after the last question still to ask is added: a resume that re-asks a
+            # few questions stops there, not at the end of the unit's timeline.
+            last = max(
+                (k for k, (_, qs) in enumerate(plan) if any(q.id not in self.done for q in qs)),
+                default=first,
+            )
+            for items, questions in pending + plan[first + 1 : last + 1]:
                 if self._stop.is_set():
                     raise StoppedError
                 new = [i for i in items if str(i["id"]) not in held]
@@ -336,14 +355,17 @@ class Runner:
                 self.added += account.added
                 self.searches += account.searches
             self._set(unit.id, None)
-        # Only a finished unit is erased: a stopped one keeps its memory for --resume.
-        if not self.s.keep:
-            account.delete()
         with self._lock:
+            failed = sum(1 for q in unit.questions if "error" in self._rows.get(q.id, {}))
             self._finished += 1
+        # Only a unit whose every question was answered is erased: a stopped one, or one with
+        # a question that failed, keeps its memory, so --resume asks again without rebuilding.
+        if not self.s.keep and not failed:
+            account.delete()
         progress(
             f"{unit.id}: {len(unit.items)} items, {asked} questions, "
             f"{time.monotonic() - started:.0f}s"
+            + (f", {failed} failed - its app user is kept for --resume" if failed else "")
         )
 
     def _settled(self, account: Account, unit: str, ids: list[str]) -> None:
@@ -375,14 +397,22 @@ class Runner:
         }
         query = str(question.extra.get("query") or question.question)
         trace: Json = {"id": question.id, "unit": unit.id, "user": account.name, "query": query}
+        if question.as_of:
+            trace["as_of"] = question.as_of
         with self._recording() as calls:
             try:
                 t0 = time.monotonic()
-                context, raw = account.search(query, self.s.bench.context_chars)
+                context, raw = account.search(
+                    query, self.s.bench.context_chars, before=question.as_of
+                )
                 row["search_seconds"] = round(time.monotonic() - t0, 2)
                 row["context_chars"] = len(context)
                 trace |= {"search": raw, "context": context}
                 row |= self.s.bench.ask(self.models, question, context)
+            except ModelKeyError:
+                # Not this question's failure: every question after it would fail the same way,
+                # and one written as failed must later be asked of memory as it is now.
+                raise
             except Exception as error:
                 row["error"] = short(error)
                 trace["error"] = traceback.format_exc(limit=5)

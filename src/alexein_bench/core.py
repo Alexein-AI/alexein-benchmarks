@@ -29,6 +29,9 @@ class Question:
     # asks after every item. `date` is the question's own date, as its prompt states it.
     cutoff: str | None = None
     date: str | None = None
+    # The day the question is asked, `YYYY-MM-DD`, sent to search as `before`: memory reads the
+    # question's time words ("last week", "N days before") from it rather than from today.
+    as_of: str | None = None
     # Anything else the benchmark keeps. `query`, when set, is what is searched in place of
     # the question's whole text.
     extra: Json = field(default_factory=dict)
