@@ -34,7 +34,7 @@ Please evaluate the AI assistant's answer on the following criteria:
 
 ### Accuracy (0 or 1)
 - **1 (Correct)**: The assistant's answer is correct as expected.
-- **0 (Incorrect)**: The assistant's answer contradicts the expected answer.
+- **0 (Incorrect)**: The assistant's answer contradicts the expected answer. 
 
 ### Overall Quality (0-10)
 - **9-10**: Accurate, complete, well-structured, and directly addresses the question.

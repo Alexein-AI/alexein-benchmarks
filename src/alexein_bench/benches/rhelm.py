@@ -175,6 +175,7 @@ def _questions(name: str, root: Path) -> list[Question]:
             # Strictly before the question's day: "2024-07-24T09:00" sorts after "2024-07-24".
             cutoff=r["question_date"],
             date=r["question_date"],
+            as_of=r["question_date"],
         )
         for r in rows
     ]

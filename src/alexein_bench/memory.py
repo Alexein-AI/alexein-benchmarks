@@ -70,9 +70,11 @@ def patient(call: Callable[[], T]) -> T:
     raise AssertionError("unreachable")
 
 
-def user_id(bench: str, unit: str, run: str) -> str:
-    """`bench-20261117a1b2c3-806f0f51c1`: the run, then which unit of which benchmark."""
-    digest = hashlib.sha256(f"{bench}/{unit}".encode()).hexdigest()[:10]
+def user_id(bench: str, unit: str, run: str, *, variant: str) -> str:
+    """`bench-20261117a1b2c3-806f0f51c1`: the run, then which unit of which benchmark and
+    variant. Variants of one run never share a memory: RHELM's `with` holds emails and
+    attachments that `without` must not see."""
+    digest = hashlib.sha256(f"{bench}/{variant}/{unit}".encode()).hexdigest()[:10]
     return f"{_PREFIX}{run}-{digest}"
 
 
@@ -176,10 +178,13 @@ class Account:
                 time.sleep(_POLL)
         return time.monotonic() - started
 
-    def search(self, query: str, max_chars: int) -> tuple[str, dict[str, Any]]:
-        """The context a model reads, as the client renders it, and the raw answer."""
+    def search(
+        self, query: str, max_chars: int, before: str | None = None
+    ) -> tuple[str, dict[str, Any]]:
+        """The context a model reads, as the client renders it, and the raw answer. `before`
+        is the day the question is asked: memory reads its time words from that day."""
         self.searches += 1
-        found = patient(partial(self.user.search, query))
+        found = patient(partial(self.user.search, query, before=before))
         return found.context(max_chars=max_chars), found.raw
 
     def delete(self) -> None:
